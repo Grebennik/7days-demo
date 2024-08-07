@@ -27,20 +27,16 @@ class DateTimezoneController extends AbstractController
         $form = $this->createForm(DateTimezoneType::class);
         $form->handleRequest($request);
 
-        $result = null;
+        $details = [];
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $details = $this->dateTimezoneService->calculateDateTimezoneDetails($data['date'], $data['timezone']);
-
-            $result = "The time zone {$details['timezone']} has {$details['offset']} minutes offset to UTC on the given day at noon.<br />";
-            $result .= "February in this year is {$details['daysInFebruary']} days long.<br />";
-            $result .= "The specified month {$details['monthName']} is {$details['daysInMonth']} days long.";
         }
 
         return $this->render('datetimezone/index.html.twig', [
             'form' => $form->createView(),
-            'result' => $result
+            'details' => $details
         ]);
     }
 }

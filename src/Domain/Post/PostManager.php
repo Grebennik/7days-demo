@@ -3,37 +3,35 @@
 namespace Domain\Post;
 
 use App\Entity\Post;
+use App\Repository\PostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use joshtronic\LoremIpsum;
 
 class PostManager
 {
-    private EntityManagerInterface $em;
+    private PostRepository $postRepository;
     private LoremIpsum $loremIpsum;
 
-    public function __construct(EntityManagerInterface $em, LoremIpsum $loremIpsum)
+    public function __construct(PostRepository $postRepository, LoremIpsum $loremIpsum)
     {
-        $this->em = $em;
+        $this->postRepository = $postRepository;
         $this->loremIpsum = $loremIpsum;
     }
 
-    public function addPost($title, $content)
+    public function addPost($title, $content, $flush = true)
     {
         $post = new Post();
         $post->setTitle($title);
         $post->setContent($content);
-        $this->em->persist($post);
-        $this->em->flush();
+        $this->postRepository->add($post, $flush);
     }
 
-    public function findPost($id): Post
+    public function findPost($id): ?Post
     {
-        $postRepository = $this->em->getRepository(Post::class);
-
-        return $postRepository->findOneBy(['id' => $id]);
+        return $this->postRepository->find($id);
     }
 
-    public function generateRandomPost()
+    public function generateRandomPost($flush = true)
     {
         $content = $this->loremIpsum->paragraphs();
 
@@ -41,7 +39,6 @@ class PostManager
         $post->setTitle('Summary ' . date('Y-m-d'));
         $post->setContent($content);
 
-        $this->em->persist($post);
-        $this->em->flush();
+        $this->postRepository->add($post, $flush);
     }
 }
